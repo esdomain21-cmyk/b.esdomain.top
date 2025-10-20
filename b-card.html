@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>E.S.D 3D Spinning Business Card</title>
+  <style>
+    :root {
+      --card-w: 360px;
+      --card-h: 220px;
+      --accent-red: #e00000;
+      --accent-cyan: #00b7eb;
+      --bg: linear-gradient(145deg,#ffffff 0%,#f3f3f3 100%);
+      --shadow: 0 20px 45px rgba(0,0,0,0.25);
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage {
+      width: calc(var(--card-w) + 80px);
+      height: calc(var(--card-h) + 120px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1200px;
+    }
+
+    .card {
+      width: var(--card-w);
+      height: var(--card-h);
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 600ms cubic-bezier(.2,.9,.3,1);
+      cursor: grab;
+      box-shadow: var(--shadow);
+      border-radius: 14px;
+    }
+
+    .card:active { cursor: grabbing; }
+
+    .side {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    .side img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .back { transform: rotateY(180deg); }
+
+    .controls {
+      position: absolute;
+      bottom: -70px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--accent-red);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+
+    .btn:hover { background: var(--accent-cyan); }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="card" id="card">
+      <div class="side front">
+        <img src="media/g148.png" alt="Front of business card">
+      </div>
+      <div class="side back">
+        <img src="media/g215.png" alt="Back of business card">
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="autoSpin">Auto Spin</button>
+      <button class="btn" id="reset">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const card = document.getElementById('card');
+      const autoBtn = document.getElementById('autoSpin');
+      const resetBtn = document.getElementById('reset');
+      let state = { rotX: -8, rotY: 0, dragging: false, lastX: 0, lastY: 0, auto: false, spin: null };
+
+      function apply() {
+        card.style.transform = `rotateX(${state.rotX}deg) rotateY(${state.rotY}deg)`;
+      }
+      apply();
+
+      card.addEventListener('pointerdown', e => {
+        state.dragging = true;
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+        state.auto = false;
+        cancelAnimationFrame(state.spin);
+      });
+
+      window.addEventListener('pointermove', e => {
+        if (!state.dragging) return;
+        const dx = e.clientX - state.lastX;
+        const dy = e.clientY - state.lastY;
+        state.rotY += dx * 0.4;
+        state.rotX -= dy * 0.4;
+        state.rotX = Math.max(-60, Math.min(60, state.rotX));
+        state.lastX = e.clientX;
+        state.lastY = e.clientY;
+        apply();
+      });
+
+      window.addEventListener('pointerup', () => state.dragging = false);
+
+      card.addEventListener('dblclick', () => {
+        state.rotY += 180;
+        apply();
+      });
+
+      autoBtn.onclick = () => {
+        if (state.auto) {
+          state.auto = false;
+          cancelAnimationFrame(state.spin);
+          autoBtn.textContent = 'Auto Spin';
+          return;
+        }
+        state.auto = true;
+        autoBtn.textContent = 'Stop Spin';
+        const spin = () => {
+          state.rotY += 1;
+          apply();
+          state.spin = requestAnimationFrame(spin);
+        };
+        state.spin = requestAnimationFrame(spin);
+      };
+
+      resetBtn.onclick = () => {
+        state.auto = false;
+        cancelAnimationFrame(state.spin);
+        state.rotX = -8;
+        state.rotY = 0;
+        apply();
+        autoBtn.textContent = 'Auto Spin';
+      };
+    })();
+  </script>
+</body>
+</html>
