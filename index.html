@@ -9,23 +9,88 @@
     :root {
       --card-w: min(360px, 90vw);
       --card-h: min(220px, 55vw);
-      --accent-red: #e00000;
-      --accent-cyan: #00b7eb;
-      --bg: linear-gradient(145deg,#ffffff 0%,#f3f3f3 100%);
+      --accent-red: #ff2b51;
+      --accent-cyan: #00eeff;
+      --neon-glow: 0 0 10px rgba(0, 238, 255, 0.5);
       --shadow: 0 20px 45px rgba(0,0,0,0.25);
       font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @property --grad-pos {
+      syntax: '<percentage>';
+      initial-value: 0%;
+      inherits: false;
     }
 
     html, body {
       height: 100%;
       margin: 0;
-      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
       box-sizing: border-box;
       overflow-x: hidden;
+      background-color: #0a0a16;
+      position: relative;
+      color: white;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at var(--grad-pos) 50%, 
+          rgba(0, 238, 255, 0.15),
+          rgba(255, 43, 81, 0.15),
+          transparent 50%),
+        linear-gradient(
+          var(--angle),
+          #ff2b5122,
+          #00eeff22,
+          #9d4edd22,
+          #ff2b5122
+        );
+      animation: 
+        rotate 20s linear infinite,
+        moveGrad 15s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      backdrop-filter: blur(100px);
+      background: radial-gradient(circle at center, transparent, #0a0a16);
+      z-index: -1;
+    }
+
+    @keyframes moveGrad {
+      from { --grad-pos: 20%; }
+      to { --grad-pos: 80%; }
+    }
+
+    @keyframes rotate {
+      to {
+        --angle: 360deg;
+      }
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.08;
+      z-index: -1;
+      pointer-events: none;
     }
 
     .stage {
@@ -44,14 +109,26 @@
       height: var(--card-h);
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 600ms cubic-bezier(.2,.9,.3,1);
+      transition: all 600ms cubic-bezier(.2,.9,.3,1);
       cursor: grab;
-      box-shadow: var(--shadow);
       border-radius: clamp(8px, 2vw, 14px);
       touch-action: none;
+      box-shadow: 
+        0 0 20px rgba(0, 238, 255, 0.2),
+        0 0 40px rgba(0, 238, 255, 0.1),
+        0 0 60px rgba(0, 238, 255, 0.05);
     }
 
-    .card:active { cursor: grabbing; }
+    .card:active { 
+      cursor: grabbing;
+    }
+
+    .card:hover {
+      box-shadow: 
+        0 0 25px rgba(0, 238, 255, 0.3),
+        0 0 50px rgba(0, 238, 255, 0.2),
+        0 0 75px rgba(0, 238, 255, 0.1);
+    }
 
     .side {
       position: absolute;
@@ -59,6 +136,9 @@
       border-radius: clamp(8px, 2vw, 14px);
       backface-visibility: hidden;
       overflow: hidden;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .side img {
@@ -95,27 +175,40 @@
     }
 
     .btn {
-      background: var(--accent-red);
+      background: rgba(255, 255, 255, 0.1);
       color: white;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2vw, 16px);
       border-radius: 999px;
       font-weight: 600;
       font-size: clamp(12px, 1.5vw, 14px);
       cursor: pointer;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
       pointer-events: auto;
       display: flex;
       align-items: center;
       gap: 8px;
       white-space: nowrap;
       touch-action: manipulation;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      text-shadow: 0 0 10px rgba(0, 238, 255, 0.5);
+      box-shadow: 
+        0 0 10px rgba(0, 238, 255, 0.2),
+        inset 0 0 10px rgba(0, 238, 255, 0.2);
     }
 
-    .btn:hover { background: var(--accent-cyan); }
+    .btn:hover { 
+      background: rgba(0, 238, 255, 0.2);
+      border-color: var(--accent-cyan);
+      box-shadow: 
+        0 0 20px rgba(0, 238, 255, 0.4),
+        inset 0 0 20px rgba(0, 238, 255, 0.4);
+      transform: translateY(-2px);
+    }
     
     .btn i {
       font-size: clamp(14px, 1.8vw, 16px);
+      filter: drop-shadow(0 0 8px var(--accent-cyan));
     }
 
     @media (max-width: 600px) {
@@ -153,6 +246,7 @@
   </style>
 </head>
 <body>
+  <div class="noise"></div>
   <div class="stage">
     <div class="card" id="card">
       <div class="side front">
