@@ -243,6 +243,73 @@
         background: var(--accent-cyan);
       }
     }
+
+    /* WhatsApp floating button (bright neon green with pulse) */
+    @keyframes whatsappPulse {
+      0%, 100% {
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2), inset 0 0 20px rgba(34, 197, 94, 0.1);
+      }
+      50% {
+        box-shadow: 0 8px 35px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.35), inset 0 0 30px rgba(34, 197, 94, 0.2);
+      }
+    }
+
+    .whatsapp-btn {
+      position: fixed;
+      right: 24px;
+      bottom: 110px;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.15));
+      border: 2px solid rgba(34, 197, 94, 0.5);
+      color: #22c55e;
+      z-index: 40;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2), inset 0 0 20px rgba(34, 197, 94, 0.1);
+      backdrop-filter: blur(10px);
+      transition: all 200ms ease;
+      pointer-events: auto;
+      animation: whatsappPulse 2.5s ease-in-out infinite;
+    }
+
+    .whatsapp-btn i {
+      font-size: 32px;
+      filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.8));
+    }
+
+    .whatsapp-btn:hover {
+      transform: translateY(-8px) scale(1.08);
+      box-shadow: 0 12px 40px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.4), inset 0 0 30px rgba(34, 197, 94, 0.25);
+      animation: none;
+    }
+
+    .whatsapp-btn:active {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4), 0 0 40px rgba(34, 197, 94, 0.25);
+    }
+
+    @media (max-width: 600px) {
+      .whatsapp-btn {
+        right: 16px;
+        bottom: 110px; /* keeps it above bottom controls */
+        width: 64px;
+        height: 64px;
+      }
+
+      .whatsapp-btn i {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-height: 500px) {
+      .whatsapp-btn {
+        bottom: 90px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -266,6 +333,11 @@
       <button class="btn" id="reset"><i class="fas fa-undo"></i> Reset</button>
     </div>
   </div>
+
+  <!-- Floating WhatsApp button: change WA_PHONE below in the script to your number -->
+  <button id="whatsappBtn" class="whatsapp-btn" aria-label="Chat on WhatsApp" title="Chat on WhatsApp">
+    <i class="fab fa-whatsapp" aria-hidden="true"></i>
+  </button>
 
   <script>
     (function(){
@@ -349,6 +421,23 @@
         apply();
         autoBtn.textContent = 'Auto Spin';
       };
+
+      // --- WhatsApp floating button handler ---
+      const whatsappBtn = document.getElementById('whatsappBtn');
+      if (whatsappBtn) {
+        // Configure your phone number in international format, no plus sign or spaces.
+        // Example: '15551234567' for +1 555 123 4567
+        const WA_PHONE = '+27677479868'; // <-- REPLACE with your number
+        const WA_MESSAGE = encodeURIComponent('Hi! I saw your digital card and would like to connect.');
+
+        whatsappBtn.addEventListener('click', () => {
+          const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          const base = isMobile ? 'https://api.whatsapp.com/send' : 'https://web.whatsapp.com/send';
+          const url = `${base}?phone=${WA_PHONE}&text=${WA_MESSAGE}`;
+          window.open(url, '_blank');
+        });
+      }
+
     })();
   </script>
 </body>
